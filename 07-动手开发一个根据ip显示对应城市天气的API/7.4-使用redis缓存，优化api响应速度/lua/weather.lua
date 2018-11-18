@@ -1,7 +1,3 @@
-local tools = require('tools')
-
-local startTime= ngx.now()
-
 local cityEName = ngx.var.geoip_city;
 
 local getPrams = ngx.req.get_uri_args()
@@ -28,7 +24,6 @@ if ok then
    local cityWeatherJson = redisHandle:get(cityCode)
    if ngx.null ~= cityWeatherJson then
      ngx.header['X-Data-By'] = 'redis'
-     ngx.header['X-Cost-Time'] = tools.getCostTime(startTime,ngx.now())
      ngx.say(cityWeatherJson)
      ngx.eof()
    end
@@ -45,7 +40,6 @@ ngx.header['X-Data-By'] = 'http'
 
 if req.status==200 then
    redisHandle:set(cityCode,req.body)
-   ngx.header['X-Cost-Time'] = tools.getCostTime(startTime,ngx.now())
    ngx.say(req.body)
 else
   local cjson = require('cjson')
