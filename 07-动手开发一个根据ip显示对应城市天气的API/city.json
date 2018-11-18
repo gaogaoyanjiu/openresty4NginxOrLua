@@ -1,0 +1,19 @@
+{
+    "BeiJing": {
+        "name": "北京", 
+        "code": "101010100"
+    }, 
+    "ShangHai": {
+        "name": "上海", 
+        "code": "101020100"
+    }, 
+    "TianJin": {
+        "name": "天津", 
+        "code": "101030100"
+    }, 
+    "ChongQing": {
+        "name": "重庆", 
+        "code": "101040100"
+    }
+}
+
