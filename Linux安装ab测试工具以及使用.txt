@@ -1,0 +1,108 @@
+Linux下 安装ab测试工具以及使用
+
+安装
+yum -y install httpd-tools
+
+查看信息：
+ab -V
+
+测试
+
+下面我们对这些参数，进行相关说明。如下：
+
+-n在测试会话中所执行的请求个数。默认时，仅执行一个请求。
+
+-c一次产生的请求个数。默认是一次一个。
+
+-t测试所进行的最大秒数。其内部隐含值是-n 50000，它可以使对服务器的测试限制在一个固定的总时间以内。默认时，没有时间限制。
+
+-p包含了需要POST的数据的文件。
+
+-P对一个中转代理提供BASIC认证信任。用户名和密码由一个:隔开，并以base64编码形式发送。无论服务器是否需要(即, 是否发送了401认证需求代码)，此字符串都会被发送。
+
+-T POST数据所使用的Content-type头信息。
+
+-v设置显示信息的详细程度-4或更大值会显示头信息，3或更大值可以显示响应代码(404,200等),2或更大值可以显示警告和其他信息。
+
+-V显示版本号并退出。
+
+-w以HTML表的格式输出结果。默认时，它是白色背景的两列宽度的一张表。
+
+-i执行HEAD请求，而不是GET。
+
+-x设置<table>属性的字符串。
+
+-X对请求使用代理服务器。
+
+-y设置<tr>属性的字符串。
+
+-z设置<td>属性的字符串。
+
+-C对请求附加一个Cookie:行。其典型形式是name=value的一个参数对，此参数可以重复。
+
+-H对请求附加额外的头信息。此参数的典型形式是一个有效的头信息行，其中包含了以冒号分隔的字段和值的对(如,"Accept-Encoding:zip/zop;8bit")。
+
+-A对服务器提供BASIC认证信任。用户名和密码由一个:隔开，并以base64编码形式发送。无论服务器是否需要(即,是否发送了401认证需求代码)，此字符串都会被发送。
+
+-h显示使用方法。
+
+-d不显示"percentage served within XX [ms] table"的消息(为以前的版本提供支持)。
+
+-e产生一个以逗号分隔的(CSV)文件，其中包含了处理每个相应百分比的请求所需要(从1%到100%)的相应百分比的(以微妙为单位)时间。由于这种格式已经“二进制化”，所以比'gnuplot'格式更有用。
+
+-g把所有测试结果写入一个'gnuplot'或者TSV(以Tab分隔的)文件。此文件可以方便地导入到Gnuplot,IDL,Mathematica,Igor甚至Excel中。其中的第一行为标题。
+
+-i执行HEAD请求，而不是GET。
+
+-k启用HTTP KeepAlive功能，即在一个HTTP会话中执行多个请求。默认时，不启用KeepAlive功能。
+
+-q如果处理的请求数大于150，ab每处理大约10%或者100个请求时，会在stderr输出一个进度计数。此-q标记可以抑制这些信息。
+
+例如:
+
+ab -n1000 -c100 https://www.imooc.com/     请求1000次,每次并发100;
+结果:
+
+Server Software:        bfe/1.0.8.14    //被测试的服务器所用的软件信息，这里使用的是百度自己开发的反向代理Baidu Front End,类似nginx。
+Server Hostname:        www.baidu.com //被测主机名
+Server Port:            443 //被测主机的服务端口号，一般http请求的默认端口号是80，https默认使用443端口
+SSL/TLS Protocol:       TLSv1.2,ECDHE-RSA-AES128-GCM-SHA256,2048,128  //加密协议
+
+Document Path:          /index.html  //请求的具体文件
+Document Length:        227 bytes   //请求的文件index.html大小
+
+Concurrency Level:      10 //并发级别，也就是并发数，请求中－c参数指定的数量
+Time taken for tests:   1.093 seconds //本次测试总共花费的时间
+Complete requests:      100 //本次测试总共发起的请求数量
+Failed requests:        0 //失败的请求数量。因网络原因或服务器性能原因，发起的请求并不一定全部成功，通过该数值和Complete requests相除可以计算请求的失败率，作为测试结果的重要参考。
+Total transferred:      103314 bytes  //总共传输的数据量，指的是ab从被测服务器接收到的总数据量，包括index.html的文本内容和请求头信息。
+HTML transferred:       22700 bytes //从服务器接收到的index.html文件的总大小，等于Document Length＊Complete requests＝227 bytes＊100＝22700 bytes
+Requests per second:    91.50 [#/sec] (mean) //平均(mean)每秒完成的请求数：QPS，这是一个平均值，等于Complete requests/Time taken for tests=100/1.093=91.50
+Time per request:       109.287 [ms] (mean) //从用户角度看，完成一个请求所需要的时间（因用户数量不止一个，服务器完成10个请求，平均每个用户才接收到一个完整的返回，所以该值是下一项数值的10倍。）
+Time per request:       10.929 [ms] (mean, across all concurrent requests)// 服务器完成一个请求的时间。
+Transfer rate:          92.32 [Kbytes/sec] received 　//网络传输速度。对于大文件的请求测试，这个值很容易成为系统瓶颈所在。要确定该值是不是瓶颈，需要了解客户端和被测服务器之间的网络情况，包括网络带宽和网卡速度等信息。
+
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:       47   74  12.9     74     106
+Processing:     9   32  20.2     32     106
+Waiting:        9   29  19.1     27      98
+Total:         66  106  20.8    106     195
+
+//这几行组成的表格主要是针对响应时间也就是第一个Time per request进行细分和统计。一个请求的响应时间可以分成网络链接（Connect），系统处理（Processing）和等待（Waiting）三个部分。表中min表示最小值； mean表示平均值；[+/-sd]表示标准差（Standard Deviation） ，也称均方差（mean square error），这个概念在中学的数学课上学过，表示数据的离散程度，数值越大表示数据越分散，系统响应时间越不稳定。 median表示中位数； max当然就是表示最大值了。
+//需要注意的是表中的Total并不等于前三行数据相加，因为前三行的数据并不是在同一个请求中采集到的，可能某个请求的网络延迟最短，但是系统处理时间又是最长的呢。所以Total是从整个请求所需要的时间的角度来统计的。这里可以看到最慢的一个请求花费了195ms，这个数据可以在下面的表中得到验证。
+
+Percentage of the requests served within a certain time (ms)
+  50%    106
+  66%    109
+  75%    111
+  80%    114
+  90%    118
+  95%    154
+  98%    176
+  99%    195
+ 100%    195 (longest request)
+
+//这个表第一行表示有50%的请求都是在106ms内完成的，可以看到这个值是比较接近平均系统响应时间（第一个Time per request:       109.287 [ms] (mean) ）
+以此类推，90%的请求是小于等于118ms的。刚才我们看到响应时间最长的那个请求是195ms，那么显然所有请求（100%）的时间都是小于等于195毫秒的，也就是表中最后一行的数据肯定是时间最长的那个请求（longest request）。
